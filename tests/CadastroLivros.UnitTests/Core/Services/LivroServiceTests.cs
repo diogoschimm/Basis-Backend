@@ -457,12 +457,8 @@ public class LivroServiceTests
             .ReturnsAsync(true);
 
         _unitOfWorkMock
-            .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _unitOfWorkMock
-            .Setup(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         // Act
         var resultado = await _livroService.RemoverAsync(codigo);
@@ -472,8 +468,7 @@ public class LivroServiceTests
         Assert.True(resultado.Value);
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(codigo), Times.Once);
         _livroRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Livro>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -495,37 +490,6 @@ public class LivroServiceTests
         Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(codigo), Times.Once);
         _livroRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Livro>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    [Trait("LivroServiceTests", "RemoverAsync")]
-    public async Task RemoverAsync_ComExcecao_DeveFazerRollback()
-    {
-        // Arrange
-        var codigo = 1;
-        var livro = AutoFaker.Generate<Livro>();
-        livro.Codigo = codigo;
-
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(codigo))
-            .ReturnsAsync(livro);
-
-        _livroRepositoryMock
-            .Setup(x => x.DeleteAsync(It.IsAny<Livro>()))
-            .ThrowsAsync(new Exception("Erro ao remover"));
-
-        _unitOfWorkMock
-            .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _unitOfWorkMock
-            .Setup(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await _livroService.RemoverAsync(codigo));
-        _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

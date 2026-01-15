@@ -113,15 +113,17 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
     /// <summary>
     /// Adiciona novos autores a um livro existente
     /// </summary>
-    /// <param name="request">Dados do livro e autores a serem adicionados</param>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="autoresCodigos">Lista de códigos dos autores a serem adicionados</param>
     /// <returns>Dados do livro atualizado</returns>
-    [HttpPost("autores")]
+    [HttpPost("{codigo}/autores")]
     [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> AdicionarAutoresAsync([FromBody] AdicionarAutoresRequest request)
+    public async Task<IActionResult> AdicionarAutoresAsync([FromRoute] int codigo, [FromBody] List<int> autoresCodigos)
     {
+        var request = new AdicionarAutoresRequest { LivroCodigo = codigo, AutoresCodigos = autoresCodigos };
         var resultado = await livroService.AdicionarAutoresAsync(request);
         
         return resultado.Match(
@@ -133,15 +135,17 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
     /// <summary>
     /// Adiciona novos assuntos a um livro existente
     /// </summary>
-    /// <param name="request">Dados do livro e assuntos a serem adicionados</param>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="assuntosCodigos">Lista de códigos dos assuntos a serem adicionados</param>
     /// <returns>Dados do livro atualizado</returns>
-    [HttpPost("assuntos")]
+    [HttpPost("{codigo}/assuntos")]
     [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> AdicionarAssuntosAsync([FromBody] AdicionarAssuntosRequest request)
+    public async Task<IActionResult> AdicionarAssuntosAsync([FromRoute] int codigo, [FromBody] List<int> assuntosCodigos)
     {
+        var request = new AdicionarAssuntosRequest { LivroCodigo = codigo, AssuntosCodigos = assuntosCodigos };
         var resultado = await livroService.AdicionarAssuntosAsync(request);
         
         return resultado.Match(
@@ -153,15 +157,17 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
     /// <summary>
     /// Remove autores de um livro existente
     /// </summary>
-    /// <param name="request">Dados do livro e autores a serem removidos</param>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="autoresCodigos">Lista de códigos dos autores a serem removidos</param>
     /// <returns>Dados do livro atualizado</returns>
-    [HttpDelete("autores")]
+    [HttpDelete("{codigo}/autores")]
     [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RemoverAutoresAsync([FromBody] RemoverAutoresRequest request)
+    public async Task<IActionResult> RemoverAutoresAsync([FromRoute] int codigo, [FromBody] List<int> autoresCodigos)
     {
+        var request = new RemoverAutoresRequest { LivroCodigo = codigo, AutoresCodigos = autoresCodigos };
         var resultado = await livroService.RemoverAutoresAsync(request);
         
         return resultado.Match(
@@ -173,15 +179,17 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
     /// <summary>
     /// Remove assuntos de um livro existente
     /// </summary>
-    /// <param name="request">Dados do livro e assuntos a serem removidos</param>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="assuntosCodigos">Lista de códigos dos assuntos a serem removidos</param>
     /// <returns>Dados do livro atualizado</returns>
-    [HttpDelete("assuntos")]
+    [HttpDelete("{codigo}/assuntos")]
     [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RemoverAssuntosAsync([FromBody] RemoverAssuntosRequest request)
+    public async Task<IActionResult> RemoverAssuntosAsync([FromRoute] int codigo, [FromBody] List<int> assuntosCodigos)
     {
+        var request = new RemoverAssuntosRequest { LivroCodigo = codigo, AssuntosCodigos = assuntosCodigos };
         var resultado = await livroService.RemoverAssuntosAsync(request);
         
         return resultado.Match(
