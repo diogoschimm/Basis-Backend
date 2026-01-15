@@ -18,4 +18,9 @@ public interface ILivroRepository : IRepositoryBase<Livro>
     Task<List<int>> BuscarAssuntosCodigosAsync(int livroCodigo);
     Task AdicionarAssuntosAsync(List<LivroAssunto> livroAssuntos);
     Task RemoverAssuntosAsync(int livroCodigo, List<int> assuntosCodigos);
+    
+    // Métodos para LivroFormaCompra
+    Task<List<int>> BuscarFormasCompraCodigosAsync(int livroCodigo);
+    Task AdicionarFormasCompraAsync(List<LivroFormaCompra> livroFormasCompra);
+    Task RemoverFormasCompraAsync(int livroCodigo, List<int> formasCompraCodigos);
 }

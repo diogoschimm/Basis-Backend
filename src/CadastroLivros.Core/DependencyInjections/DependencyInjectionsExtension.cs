@@ -11,6 +11,7 @@ public  static class DependencyInjectionsExtension
         services.AddScoped<ILivroService, LivroService>();
         services.AddScoped<IAutorService, AutorService>();
         services.AddScoped<IAssuntoService, AssuntoService>();
+        services.AddScoped<IFormaCompraService, FormaCompraService>();
 
         return services;
     }

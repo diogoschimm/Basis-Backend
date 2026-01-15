@@ -80,4 +80,27 @@ internal class LivroRepository(LivrosDbContext dbContext)
 
         _dbContext.LivroAssunto.RemoveRange(livroAssuntos);
     }
+
+    // Métodos para LivroFormaCompra
+    public async Task<List<int>> BuscarFormasCompraCodigosAsync(int livroCodigo)
+    {
+        return await _dbContext.LivroFormaCompra
+            .Where(lfc => lfc.LivroCodigo == livroCodigo)
+            .Select(lfc => lfc.FormaCompraCodigo)
+            .ToListAsync();
+    }
+
+    public async Task AdicionarFormasCompraAsync(List<LivroFormaCompra> livroFormasCompra)
+    {
+        await _dbContext.LivroFormaCompra.AddRangeAsync(livroFormasCompra);
+    }
+
+    public async Task RemoverFormasCompraAsync(int livroCodigo, List<int> formasCompraCodigos)
+    {
+        var livroFormasCompra = await _dbContext.LivroFormaCompra
+            .Where(lfc => lfc.LivroCodigo == livroCodigo && formasCompraCodigos.Contains(lfc.FormaCompraCodigo))
+            .ToListAsync();
+
+        _dbContext.LivroFormaCompra.RemoveRange(livroFormasCompra);
+    }
 }

@@ -44,6 +44,11 @@ public class LivroDbMapper : IEntityTypeConfiguration<Livro>
             .WithOne()
             .HasForeignKey(la => la.LivroCodigo)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(l => l.LivroFormasCompra)
+            .WithOne()
+            .HasForeignKey(lfc => lfc.LivroCodigo)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

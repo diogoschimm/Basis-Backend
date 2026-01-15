@@ -29,4 +29,5 @@ public class CriarLivroRequest
 
     public List<int>? AutoresCodigos { get; set; }
     public List<int>? AssuntosCodigos { get; set; }
+    public List<FormaCompraItemRequest>? FormasCompra { get; set; }
 }

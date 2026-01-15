@@ -13,4 +13,5 @@ public class Livro : Entity
 
     public ICollection<LivroAutor> LivroAutores { get; set; } = [];
     public ICollection<LivroAssunto> LivroAssuntos { get; set; } = [];
+    public ICollection<LivroFormaCompra> LivroFormasCompra { get; set; } = [];
 }

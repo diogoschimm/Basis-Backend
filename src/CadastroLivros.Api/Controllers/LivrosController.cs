@@ -197,4 +197,48 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
             errors => Problem(errors)
         );
     }
+
+    /// <summary>
+    /// Adiciona novas formas de compra a um livro existente
+    /// </summary>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="formasCompra">Lista de formas de compra a serem adicionadas</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpPost("{codigo}/formas-compra")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AdicionarFormasCompraAsync([FromRoute] int codigo, [FromBody] List<FormaCompraItemRequest> formasCompra)
+    {
+        var request = new AdicionarFormasCompraRequest { LivroCodigo = codigo, FormasCompra = formasCompra };
+        var resultado = await livroService.AdicionarFormasCompraAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    /// <summary>
+    /// Remove formas de compra de um livro existente
+    /// </summary>
+    /// <param name="codigo">Código do livro</param>
+    /// <param name="formasCompraCodigos">Lista de códigos das formas de compra a serem removidas</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpDelete("{codigo}/formas-compra")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RemoverFormasCompraAsync([FromRoute] int codigo, [FromBody] List<int> formasCompraCodigos)
+    {
+        var request = new RemoverFormasCompraRequest { LivroCodigo = codigo, FormasCompraCodigos = formasCompraCodigos };
+        var resultado = await livroService.RemoverFormasCompraAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
 }

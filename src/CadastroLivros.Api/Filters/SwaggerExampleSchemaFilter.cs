@@ -30,7 +30,30 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
                     new OpenApiInteger(1),
                     new OpenApiInteger(2),
                     new OpenApiInteger(3)
+                },
+                ["formasCompra"] = new OpenApiArray
+                {
+                    new OpenApiObject
+                    {
+                        ["formaCompraCodigo"] = new OpenApiInteger(1),
+                        ["valorCompra"] = new OpenApiDouble(89.90)
+                    },
+                    new OpenApiObject
+                    {
+                        ["formaCompraCodigo"] = new OpenApiInteger(2),
+                        ["valorCompra"] = new OpenApiDouble(49.90)
+                    }
                 }
+            };
+        }
+
+        // Exemplos para FormaCompraItemRequest
+        if (type.Name == nameof(CadastroLivros.Core.DataTransferObjects.Requests.Livros.FormaCompraItemRequest))
+        {
+            schema.Example = new OpenApiObject
+            {
+                ["formaCompraCodigo"] = new OpenApiInteger(1),
+                ["valorCompra"] = new OpenApiDouble(89.90)
             };
         }
 
@@ -84,6 +107,26 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
             {
                 ["codigo"] = new OpenApiInteger(1),
                 ["descricao"] = new OpenApiString("Programação e Desenvolvimento de Software - Arquitetura")
+            };
+        }
+
+        // Exemplos para CriarFormaCompraRequest
+        if (type.Name == nameof(CadastroLivros.Core.DataTransferObjects.Requests.FormasCompra.CriarFormaCompraRequest))
+        {
+            schema.Example = new OpenApiObject
+            {
+                ["codigo"] = new OpenApiInteger(1),
+                ["descricao"] = new OpenApiString("Balcão")
+            };
+        }
+
+        // Exemplos para AtualizarFormaCompraRequest
+        if (type.Name == nameof(CadastroLivros.Core.DataTransferObjects.Requests.FormasCompra.AtualizarFormaCompraRequest))
+        {
+            schema.Example = new OpenApiObject
+            {
+                ["codigo"] = new OpenApiInteger(1),
+                ["descricao"] = new OpenApiString("Sef-Service")
             };
         }
     }

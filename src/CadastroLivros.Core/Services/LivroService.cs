@@ -99,6 +99,16 @@ public class LivroService(
             })];
         }
 
+        if (request.FormasCompra != null && request.FormasCompra.Count != 0)
+        {
+            livro.LivroFormasCompra = [.. request.FormasCompra.Select(fc => new LivroFormaCompra
+            {
+                LivroCodigo = livro.Codigo,
+                FormaCompraCodigo = fc.FormaCompraCodigo,
+                ValorCompra = fc.ValorCompra
+            })];
+        }
+
         await livroRepository.AddAsync(livro);
         await unitOfWork.SaveChangesAsync();
 
@@ -268,6 +278,65 @@ public class LivroService(
 
         // Remover os relacionamentos
         await livroRepository.RemoverAssuntosAsync(request.LivroCodigo, assuntosParaRemover);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
+    }
+
+    public async Task<ErrorOr<LivroResponse>> AdicionarFormasCompraAsync(AdicionarFormasCompraRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Verificar quais formas de compra já estão associadas ao livro
+        var formasCompraExistentes = await livroRepository.BuscarFormasCompraCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas as formas de compra que ainda não estão associadas
+        var novasFormasCompra = request.FormasCompra
+            .Where(fc => !formasCompraExistentes.Contains(fc.FormaCompraCodigo))
+            .ToList();
+
+        if (novasFormasCompra.Count == 0)
+            return Error.Validation("Livro.FormasCompraJaAdicionadas", "Todas as formas de compra informadas já estão associadas ao livro");
+
+        // Adicionar novos relacionamentos
+        var novosLivroFormasCompra = novasFormasCompra.Select(fc => new LivroFormaCompra
+        {
+            LivroCodigo = request.LivroCodigo,
+            FormaCompraCodigo = fc.FormaCompraCodigo,
+            ValorCompra = fc.ValorCompra
+        }).ToList();
+
+        await livroRepository.AdicionarFormasCompraAsync(novosLivroFormasCompra);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
+    }
+
+    public async Task<ErrorOr<LivroResponse>> RemoverFormasCompraAsync(RemoverFormasCompraRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Verificar quais formas de compra estão associadas ao livro
+        var formasCompraExistentes = await livroRepository.BuscarFormasCompraCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas as formas de compra que estão associadas
+        var formasCompraParaRemover = request.FormasCompraCodigos
+            .Where(fc => formasCompraExistentes.Contains(fc))
+            .ToList();
+
+        if (formasCompraParaRemover.Count == 0)
+            return Error.Validation("Livro.FormasCompraNaoEncontradas", "Nenhuma das formas de compra informadas está associada ao livro");
+
+        // Remover os relacionamentos
+        await livroRepository.RemoverFormasCompraAsync(request.LivroCodigo, formasCompraParaRemover);
         await unitOfWork.SaveChangesAsync();
 
         // Buscar o livro atualizado para retornar

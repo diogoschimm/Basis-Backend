@@ -4,21 +4,22 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CadastroLivros.Infra.DbDataMappers;
 
-public class AssuntoDbMapper : IEntityTypeConfiguration<Assunto>
+public class FormaCompraDbMapper : IEntityTypeConfiguration<FormaCompra>
 {
-    public void Configure(EntityTypeBuilder<Assunto> builder)
+    public void Configure(EntityTypeBuilder<FormaCompra> builder)
     {
-        builder.ToTable("Assunto");
+        builder.ToTable("FormaCompra");
 
-        builder.HasKey(a => a.Codigo);
+        builder.HasKey(fc => fc.Codigo);
 
-        builder.Property(a => a.Codigo)
+        builder.Property(fc => fc.Codigo)
             .HasColumnName("Codigo")
             .IsRequired();
 
-        builder.Property(a => a.Descricao)
+        builder.Property(fc => fc.Descricao)
             .HasColumnName("Descricao")
             .HasColumnType("VARCHAR(40)")
             .IsRequired();
     }
-} 
+}
+
