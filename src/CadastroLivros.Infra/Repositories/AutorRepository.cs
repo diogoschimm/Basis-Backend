@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CadastroLivros.Infra.Repositories;
 
-public class AutorRepository(LivrosDbContext dbContext)  
+internal class AutorRepository(LivrosDbContext dbContext)  
     : RepositoryBase<Autor, LivrosDbContext>(dbContext), IAutorRepository
 {
     public async Task<Autor?> BuscarPorCodigoAsync(int codigo)
@@ -29,8 +29,7 @@ public class AutorRepository(LivrosDbContext dbContext)
             OFFSET @Offset ROWS 
             FETCH NEXT @PageSize ROWS ONLY";
 
-        var items = (await _connection.QueryAsync<Autor>(dataQuery, new { Offset = offset, PageSize = pageSize }))
-            .ToList();
+        var items = (await _connection.QueryAsync<Autor>(dataQuery, new { Offset = offset, PageSize = pageSize })).ToList();
 
         return (items, totalCount);
     }

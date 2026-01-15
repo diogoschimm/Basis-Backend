@@ -4,12 +4,17 @@ using CadastroLivros.Core.Contracts.Services;
 using CadastroLivros.Core.DataTransferObjects.Requests.Livros;
 using CadastroLivros.Core.DataTransferObjects.Responses;
 using CadastroLivros.Core.Entities;
+using CadastroLivros.Core.Entities.Ternarias;
 using CadastroLivros.Core.Helpers.Extensions;
 using ErrorOr;
 
 namespace CadastroLivros.Core.Services;
 
-public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWork) : ILivroService
+public class LivroService(
+    ILivroRepository livroRepository,
+    IAutorRepository autorRepository,
+    IAssuntoRepository assuntoRepository,
+    IUnitOfWork unitOfWork) : ILivroService
 {
     public async Task<ErrorOr<PagedResult<LivroResponse>>> GetAsync(int pageNumber = 1, int pageSize = 10)
     {
@@ -23,7 +28,7 @@ public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWo
 
         var response = new PagedResult<LivroResponse>
         {
-            Items = items.Select(l => l.ToResponse()).ToList(),
+            Items = [.. items.Select(l => l.ToResponse())],
             TotalCount = totalCount,
             PageNumber = pageNumber,
             PageSize = pageSize
@@ -46,6 +51,26 @@ public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWo
         var livroExistente = await livroRepository.BuscarPorCodigoAsync(request.Codigo);
         if (livroExistente != null)
             return Error.Conflict("Livro.JaExiste", $"Já existe um livro com o código {request.Codigo}");
+         
+        if (request.AutoresCodigos != null && request.AutoresCodigos.Count != 0)
+        {
+            foreach (var autorCodigo in request.AutoresCodigos)
+            {
+                var autor = await autorRepository.BuscarPorCodigoAsync(autorCodigo);
+                if (autor == null)
+                    return Error.NotFound("Autor.NaoEncontrado", $"Autor com código {autorCodigo} não encontrado");
+            }
+        }
+         
+        if (request.AssuntosCodigos != null && request.AssuntosCodigos.Count != 0)
+        {
+            foreach (var assuntoCodigo in request.AssuntosCodigos)
+            {
+                var assunto = await assuntoRepository.BuscarPorCodigoAsync(assuntoCodigo);
+                if (assunto == null)
+                    return Error.NotFound("Assunto.NaoEncontrado", $"Assunto com código {assuntoCodigo} não encontrado");
+            }
+        }
 
         var livro = new Livro
         {
@@ -56,19 +81,28 @@ public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWo
             AnoPublicacao = request.AnoPublicacao
         };
 
-        try
+        if (request.AutoresCodigos != null && request.AutoresCodigos.Count != 0)
         {
-            await unitOfWork.BeginTransactionAsync();
-            await livroRepository.AddAsync(livro);
-            await unitOfWork.CommitTransactionAsync();
-            
-            return livro.ToResponse();
+            livro.LivroAutores = [.. request.AutoresCodigos.Select(autorCodigo => new LivroAutor
+            {
+                LivroCodigo = livro.Codigo,
+                AutorCodigo = autorCodigo
+            })];
         }
-        catch
+
+        if (request.AssuntosCodigos != null && request.AssuntosCodigos.Count != 0)
         {
-            await unitOfWork.RollbackTransactionAsync();
-            throw;
+            livro.LivroAssuntos = [.. request.AssuntosCodigos.Select(assuntoCodigo => new LivroAssunto
+            {
+                LivroCodigo = livro.Codigo,
+                AssuntoCodigo = assuntoCodigo
+            })];
         }
+
+        await livroRepository.AddAsync(livro);
+        await unitOfWork.SaveChangesAsync();
+
+        return livro.ToResponse();
     }
 
     public async Task<ErrorOr<LivroResponse>> AtualizarAsync(AtualizarLivroRequest request)
@@ -87,7 +121,7 @@ public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWo
             await unitOfWork.BeginTransactionAsync();
             await livroRepository.UpdateAsync(livroExistente);
             await unitOfWork.CommitTransactionAsync();
-            
+
             return livroExistente.ToResponse();
         }
         catch
@@ -108,7 +142,7 @@ public class LivroService(ILivroRepository livroRepository, IUnitOfWork unitOfWo
             await unitOfWork.BeginTransactionAsync();
             await livroRepository.DeleteAsync(livro);
             await unitOfWork.CommitTransactionAsync();
-            
+
             return true;
         }
         catch

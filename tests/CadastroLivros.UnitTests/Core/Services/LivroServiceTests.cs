@@ -12,14 +12,24 @@ namespace CadastroLivros.UnitTests.Core.Services;
 public class LivroServiceTests
 {
     private readonly Mock<ILivroRepository> _livroRepositoryMock;
+    private readonly Mock<IAutorRepository> _autorRepositoryMock;
+    private readonly Mock<IAssuntoRepository> _assuntoRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly LivroService _livroService;
 
     public LivroServiceTests()
     {
         _livroRepositoryMock = new Mock<ILivroRepository>();
+        _autorRepositoryMock = new Mock<IAutorRepository>();
+        _assuntoRepositoryMock = new Mock<IAssuntoRepository>();
+
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _livroService = new LivroService(_livroRepositoryMock.Object, _unitOfWorkMock.Object);
+
+        _livroService = new LivroService(
+            _livroRepositoryMock.Object,
+            _autorRepositoryMock.Object,
+            _assuntoRepositoryMock.Object,
+            _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -104,6 +114,7 @@ public class LivroServiceTests
         Assert.NotNull(resultado.Value);
         Assert.Equal(codigo, resultado.Value.Codigo);
         Assert.Equal(livro.Titulo, resultado.Value.Titulo);
+
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(codigo), Times.Once);
     }
 
@@ -124,6 +135,7 @@ public class LivroServiceTests
         // Assert
         Assert.True(resultado.IsError);
         Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
+
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(codigo), Times.Once);
     }
 
@@ -133,6 +145,8 @@ public class LivroServiceTests
     {
         // Arrange
         var request = AutoFaker.Generate<CriarLivroRequest>();
+        request.AutoresCodigos = null;
+        request.AssuntosCodigos = null;
 
         _livroRepositoryMock
             .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
@@ -143,12 +157,8 @@ public class LivroServiceTests
             .ReturnsAsync((Livro livro) => livro);
 
         _unitOfWorkMock
-            .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _unitOfWorkMock
-            .Setup(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         // Act
         var resultado = await _livroService.AdicionarAsync(request);
@@ -159,10 +169,10 @@ public class LivroServiceTests
         Assert.Equal(request.Codigo, resultado.Value.Codigo);
         Assert.Equal(request.Titulo, resultado.Value.Titulo);
         Assert.Equal(request.Editora, resultado.Value.Editora);
+
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -186,36 +196,154 @@ public class LivroServiceTests
         Assert.Equal(ErrorType.Conflict, resultado.FirstError.Type);
         _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     [Trait("LivroServiceTests", "AdicionarAsync")]
-    public async Task AdicionarAsync_ComExcecao_DeveFazerRollback()
+    public async Task AdicionarAsync_ComAutoresEAssuntosValidos_DeveAdicionarComSucesso()
     {
         // Arrange
         var request = AutoFaker.Generate<CriarLivroRequest>();
+        request.AutoresCodigos = [1, 2];
+        request.AssuntosCodigos = [1, 2, 3];
+
+        var autor1 = AutoFaker.Generate<Autor>();
+        autor1.Codigo = 1;
+        var autor2 = AutoFaker.Generate<Autor>();
+        autor2.Codigo = 2;
+
+        var assunto1 = AutoFaker.Generate<Assunto>();
+        assunto1.Codigo = 1;
+        var assunto2 = AutoFaker.Generate<Assunto>();
+        assunto2.Codigo = 2;
+        var assunto3 = AutoFaker.Generate<Assunto>();
+        assunto3.Codigo = 3;
 
         _livroRepositoryMock
             .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
             .ReturnsAsync((Livro?)null);
 
+        _autorRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(1))
+            .ReturnsAsync(autor1);
+
+        _autorRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(2))
+            .ReturnsAsync(autor2);
+
+        _assuntoRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(1))
+            .ReturnsAsync(assunto1);
+
+        _assuntoRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(2))
+            .ReturnsAsync(assunto2);
+
+        _assuntoRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(3))
+            .ReturnsAsync(assunto3);
+
         _livroRepositoryMock
             .Setup(x => x.AddAsync(It.IsAny<Livro>()))
-            .ThrowsAsync(new Exception("Erro ao adicionar"));
+            .ReturnsAsync((Livro livro) => livro);
 
         _unitOfWorkMock
-            .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
-        _unitOfWorkMock
-            .Setup(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        // Act
+        var resultado = await _livroService.AdicionarAsync(request);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await _livroService.AdicionarAsync(request));
-        _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Assert
+        Assert.True(resultado.IsError == false);
+        Assert.NotNull(resultado.Value);
+        Assert.Equal(request.Codigo, resultado.Value.Codigo);
+        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
+        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
+        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(2), Times.Once);
+        _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
+        _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(2), Times.Once);
+        _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(3), Times.Once);
+        _livroRepositoryMock.Verify(x => x.AddAsync(It.Is<Livro>(l => 
+            l.LivroAutores.Count == 2 && l.LivroAssuntos.Count == 3)), Times.Once);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    [Trait("LivroServiceTests", "AdicionarAsync")]
+    public async Task AdicionarAsync_ComAutorInexistente_DeveRetornarErro()
+    {
+        // Arrange
+        var request = AutoFaker.Generate<CriarLivroRequest>();
+        request.AutoresCodigos = [1, 999];
+        request.AssuntosCodigos = null;
+
+        var autor1 = AutoFaker.Generate<Autor>();
+        autor1.Codigo = 1;
+
+        _livroRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
+            .ReturnsAsync((Livro?)null);
+
+        _autorRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(1))
+            .ReturnsAsync(autor1);
+
+        _autorRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(999))
+            .ReturnsAsync((Autor?)null);
+
+        // Act
+        var resultado = await _livroService.AdicionarAsync(request);
+
+        // Assert
+        Assert.True(resultado.IsError);
+        Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
+        Assert.Contains("999", resultado.FirstError.Description);
+        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
+        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
+        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(999), Times.Once);
+        _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("LivroServiceTests", "AdicionarAsync")]
+    public async Task AdicionarAsync_ComAssuntoInexistente_DeveRetornarErro()
+    {
+        // Arrange
+        var request = AutoFaker.Generate<CriarLivroRequest>();
+        request.AutoresCodigos = null;
+        request.AssuntosCodigos = [1, 999];
+
+        var assunto1 = AutoFaker.Generate<Assunto>();
+        assunto1.Codigo = 1;
+
+        _livroRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
+            .ReturnsAsync((Livro?)null);
+
+        _assuntoRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(1))
+            .ReturnsAsync(assunto1);
+
+        _assuntoRepositoryMock
+            .Setup(x => x.BuscarPorCodigoAsync(999))
+            .ReturnsAsync((Assunto?)null);
+
+        // Act
+        var resultado = await _livroService.AdicionarAsync(request);
+
+        // Assert
+        Assert.True(resultado.IsError);
+        Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
+        Assert.Contains("999", resultado.FirstError.Description);
+        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
+        _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
+        _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(999), Times.Once);
+        _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

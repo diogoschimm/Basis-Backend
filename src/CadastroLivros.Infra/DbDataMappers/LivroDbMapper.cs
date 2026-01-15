@@ -34,6 +34,16 @@ public class LivroDbMapper : IEntityTypeConfiguration<Livro>
             .HasColumnName("AnoPublicacao")
             .HasColumnType("VARCHAR(4)")
             .IsRequired();
+
+        builder.HasMany(l => l.LivroAutores)
+            .WithOne()
+            .HasForeignKey(la => la.LivroCodigo)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(l => l.LivroAssuntos)
+            .WithOne()
+            .HasForeignKey(la => la.LivroCodigo)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

@@ -21,15 +21,9 @@ public class LivroAutorDbMapper : IEntityTypeConfiguration<LivroAutor>
             .HasColumnName("AutorCodigo")
             .IsRequired();
 
-        builder.HasOne<Livro>()
-            .WithMany()
-            .HasForeignKey(la => la.LivroCodigo)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne<Autor>()
             .WithMany()
-            .HasForeignKey(la => la.AutorCodigo)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(la => la.AutorCodigo);
     }
 }
 

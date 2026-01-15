@@ -26,4 +26,7 @@ public class CriarLivroRequest
     [RegularExpression(@"^\d{4}$", ErrorMessage = "O ano de publicação deve ter exatamente 4 dígitos.")]
     [AnoPublicacao]
     public required string AnoPublicacao { get; set; }
+
+    public List<int>? AutoresCodigos { get; set; }
+    public List<int>? AssuntosCodigos { get; set; }
 }

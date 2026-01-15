@@ -21,15 +21,9 @@ public class LivroAssuntoDbMapper : IEntityTypeConfiguration<LivroAssunto>
             .HasColumnName("AssuntoCodigo")
             .IsRequired();
 
-        builder.HasOne<Livro>()
-            .WithMany()
-            .HasForeignKey(la => la.LivroCodigo)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne<Assunto>()
             .WithMany()
-            .HasForeignKey(la => la.AssuntoCodigo)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(la => la.AssuntoCodigo);
     }
 }
 
