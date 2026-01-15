@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadastroLivros.Api", "src\CadastroLivros.Api\CadastroLivros.Api.csproj", "{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4BD8D078-733B-44B2-9D66-D7F1C362530D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadastroLivros.Core", "src\CadastroLivros.Core\CadastroLivros.Core.csproj", "{DE106E1A-23C0-47AD-8DCF-1C90E55FC485}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadastroLivros.Infra", "src\CadastroLivros.Infra\CadastroLivros.Infra.csproj", "{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CadastroLivros.UnitTests", "tests\CadastroLivros.UnitTests\CadastroLivros.UnitTests.csproj", "{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE106E1A-23C0-47AD-8DCF-1C90E55FC485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE106E1A-23C0-47AD-8DCF-1C90E55FC485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE106E1A-23C0-47AD-8DCF-1C90E55FC485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE106E1A-23C0-47AD-8DCF-1C90E55FC485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0BA69754-9D12-4EAE-82BF-A0D0E35F4F73} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{DE106E1A-23C0-47AD-8DCF-1C90E55FC485} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{9AF17F79-2B0C-4483-A85A-34D25F7AA1D5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{00CC6682-8863-4EAA-B0E6-7C41B44D1CB2} = {4BD8D078-733B-44B2-9D66-D7F1C362530D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B3452B8F-37B9-4642-BEBF-22B83EA80172}
+	EndGlobalSection
+EndGlobal

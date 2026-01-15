@@ -1,0 +1,124 @@
+@CadastroLivros.Api_HostAddress = http://localhost:5051
+
+### ============================================
+### LIVROS
+### ============================================
+
+### Adicionar Livro
+POST {{CadastroLivros.Api_HostAddress}}/api/Livros
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "titulo": "Dom Casmurro",
+  "editora": "Globo",
+  "edicao": 1,
+  "anoPublicacao": "1899"
+}
+
+### Atualizar Livro
+PUT {{CadastroLivros.Api_HostAddress}}/api/Livros
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "titulo": "Dom Casmurro - Edição Especial",
+  "editora": "Globo Livros",
+  "edicao": 2,
+  "anoPublicacao": "2020"
+}
+
+### Remover Livro
+DELETE {{CadastroLivros.Api_HostAddress}}/api/Livros/1
+
+### Adicionar Livro - Erro de Validação (título muito longo)
+POST {{CadastroLivros.Api_HostAddress}}/api/Livros
+Content-Type: application/json
+
+{
+  "codigo": 2,
+  "titulo": "Este título é muito longo e excede o limite de 40 caracteres permitidos",
+  "editora": "Editora Teste",
+  "edicao": 1,
+  "anoPublicacao": "2024"
+}
+
+### Adicionar Livro - Erro de Validação (ano inválido)
+POST {{CadastroLivros.Api_HostAddress}}/api/Livros
+Content-Type: application/json
+
+{
+  "codigo": 3,
+  "titulo": "Livro Teste",
+  "editora": "Editora Teste",
+  "edicao": 1,
+  "anoPublicacao": "2025"
+}
+
+### ============================================
+### AUTORES
+### ============================================
+
+### Adicionar Autor
+POST {{CadastroLivros.Api_HostAddress}}/api/Autores
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "nome": "Machado de Assis"
+}
+
+### Atualizar Autor
+PUT {{CadastroLivros.Api_HostAddress}}/api/Autores
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "nome": "Joaquim Maria Machado de Assis"
+}
+
+### Remover Autor
+DELETE {{CadastroLivros.Api_HostAddress}}/api/Autores/1
+
+### Adicionar Autor - Erro de Validação (nome muito longo)
+POST {{CadastroLivros.Api_HostAddress}}/api/Autores
+Content-Type: application/json
+
+{
+  "codigo": 2,
+  "nome": "Este nome de autor é muito longo e excede o limite de 40 caracteres"
+}
+
+### ============================================
+### ASSUNTOS
+### ============================================
+
+### Adicionar Assunto
+POST {{CadastroLivros.Api_HostAddress}}/api/Assuntos
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "descricao": "Literatura Brasileira"
+}
+
+### Atualizar Assunto
+PUT {{CadastroLivros.Api_HostAddress}}/api/Assuntos
+Content-Type: application/json
+
+{
+  "codigo": 1,
+  "descricao": "Literatura Brasileira Clássica"
+}
+
+### Remover Assunto
+DELETE {{CadastroLivros.Api_HostAddress}}/api/Assuntos/1
+
+### Adicionar Assunto - Erro de Validação (descrição muito longa)
+POST {{CadastroLivros.Api_HostAddress}}/api/Assuntos
+Content-Type: application/json
+
+{
+  "codigo": 2,
+  "descricao": "Esta descrição de assunto é muito longa e excede o limite de 40 caracteres"
+}
