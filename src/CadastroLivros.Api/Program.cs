@@ -1,3 +1,4 @@
+using CadastroLivros.Api.Filters;
 using CadastroLivros.Api.Middlewares;
 using CadastroLivros.Api.SetupApp;
 using CadastroLivros.Core.DependencyInjections;
@@ -25,9 +26,39 @@ try
     builder.Services.AddRateLimitingConfiguration();
     builder.Services.AddHealthCheckConfiguration();
 
-    builder.Services.AddControllers().AddModelValidationConfiguration();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        })
+        .AddModelValidationConfiguration();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "Basis Backend API",
+            Version = "v1",
+            Description = "API REST para gerenciamento de cadastro de livros, autores e assuntos",
+            Contact = new Microsoft.OpenApi.Models.OpenApiContact
+            {
+                Name = "Basis",
+            }
+        });
+
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        if (File.Exists(xmlPath))
+        {
+            c.IncludeXmlComments(xmlPath);
+        }
+
+        // Adicionar exemplos de JSON
+        c.SchemaFilter<SwaggerExampleSchemaFilter>();
+        
+        // Configurar para usar camelCase
+        c.DescribeAllParametersInCamelCase();
+    });
 
     var app = builder.Build();
     app.UseGlobalExceptionHandler();
