@@ -109,4 +109,84 @@ public class LivrosController(ILivroService livroService) : ApiControllerBase
             errors => Problem(errors)
         );
     }
+
+    /// <summary>
+    /// Adiciona novos autores a um livro existente
+    /// </summary>
+    /// <param name="request">Dados do livro e autores a serem adicionados</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpPost("autores")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AdicionarAutoresAsync([FromBody] AdicionarAutoresRequest request)
+    {
+        var resultado = await livroService.AdicionarAutoresAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    /// <summary>
+    /// Adiciona novos assuntos a um livro existente
+    /// </summary>
+    /// <param name="request">Dados do livro e assuntos a serem adicionados</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpPost("assuntos")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AdicionarAssuntosAsync([FromBody] AdicionarAssuntosRequest request)
+    {
+        var resultado = await livroService.AdicionarAssuntosAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    /// <summary>
+    /// Remove autores de um livro existente
+    /// </summary>
+    /// <param name="request">Dados do livro e autores a serem removidos</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpDelete("autores")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RemoverAutoresAsync([FromBody] RemoverAutoresRequest request)
+    {
+        var resultado = await livroService.RemoverAutoresAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    /// <summary>
+    /// Remove assuntos de um livro existente
+    /// </summary>
+    /// <param name="request">Dados do livro e assuntos a serem removidos</param>
+    /// <returns>Dados do livro atualizado</returns>
+    [HttpDelete("assuntos")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RemoverAssuntosAsync([FromBody] RemoverAssuntosRequest request)
+    {
+        var resultado = await livroService.RemoverAssuntosAsync(request);
+        
+        return resultado.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
 }

@@ -51,7 +51,7 @@ public class LivroService(
         var livroExistente = await livroRepository.BuscarPorCodigoAsync(request.Codigo);
         if (livroExistente != null)
             return Error.Conflict("Livro.JaExiste", $"Já existe um livro com o código {request.Codigo}");
-         
+
         if (request.AutoresCodigos != null && request.AutoresCodigos.Count != 0)
         {
             foreach (var autorCodigo in request.AutoresCodigos)
@@ -61,7 +61,7 @@ public class LivroService(
                     return Error.NotFound("Autor.NaoEncontrado", $"Autor com código {autorCodigo} não encontrado");
             }
         }
-         
+
         if (request.AssuntosCodigos != null && request.AssuntosCodigos.Count != 0)
         {
             foreach (var assuntoCodigo in request.AssuntosCodigos)
@@ -137,18 +137,141 @@ public class LivroService(
         if (livro == null)
             return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {codigo} não encontrado");
 
-        try
-        {
-            await unitOfWork.BeginTransactionAsync();
-            await livroRepository.DeleteAsync(livro);
-            await unitOfWork.CommitTransactionAsync();
+        await livroRepository.DeleteAsync(livro);
+        await unitOfWork.SaveChangesAsync();
 
-            return true;
-        }
-        catch
+        return true;
+    }
+
+    public async Task<ErrorOr<LivroResponse>> AdicionarAutoresAsync(AdicionarAutoresRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Validar se os autores existem
+        foreach (var autorCodigo in request.AutoresCodigos)
         {
-            await unitOfWork.RollbackTransactionAsync();
-            throw;
+            var autor = await autorRepository.BuscarPorCodigoAsync(autorCodigo);
+            if (autor == null)
+                return Error.NotFound("Autor.NaoEncontrado", $"Autor com código {autorCodigo} não encontrado");
         }
+
+        // Verificar quais autores já estão associados ao livro
+        var autoresExistentes = await livroRepository.BuscarAutoresCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas os autores que ainda não estão associados
+        var novosAutoresCodigos = request.AutoresCodigos
+            .Where(ac => !autoresExistentes.Contains(ac))
+            .ToList();
+
+        if (novosAutoresCodigos.Count == 0)
+            return Error.Validation("Livro.AutoresJaAdicionados", "Todos os autores informados já estão associados ao livro");
+
+        // Adicionar novos relacionamentos
+        var novosLivroAutores = novosAutoresCodigos.Select(autorCodigo => new LivroAutor
+        {
+            LivroCodigo = request.LivroCodigo,
+            AutorCodigo = autorCodigo
+        }).ToList();
+
+        await livroRepository.AdicionarAutoresAsync(novosLivroAutores);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
+    }
+
+    public async Task<ErrorOr<LivroResponse>> AdicionarAssuntosAsync(AdicionarAssuntosRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Validar se os assuntos existem
+        foreach (var assuntoCodigo in request.AssuntosCodigos)
+        {
+            var assunto = await assuntoRepository.BuscarPorCodigoAsync(assuntoCodigo);
+            if (assunto == null)
+                return Error.NotFound("Assunto.NaoEncontrado", $"Assunto com código {assuntoCodigo} não encontrado");
+        }
+
+        // Verificar quais assuntos já estão associados ao livro
+        var assuntosExistentes = await livroRepository.BuscarAssuntosCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas os assuntos que ainda não estão associados
+        var novosAssuntosCodigos = request.AssuntosCodigos
+            .Where(ac => !assuntosExistentes.Contains(ac))
+            .ToList();
+
+        if (novosAssuntosCodigos.Count == 0)
+            return Error.Validation("Livro.AssuntosJaAdicionados", "Todos os assuntos informados já estão associados ao livro");
+
+        // Adicionar novos relacionamentos
+        var novosLivroAssuntos = novosAssuntosCodigos.Select(assuntoCodigo => new LivroAssunto
+        {
+            LivroCodigo = request.LivroCodigo,
+            AssuntoCodigo = assuntoCodigo
+        }).ToList();
+
+        await livroRepository.AdicionarAssuntosAsync(novosLivroAssuntos);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
+    }
+
+    public async Task<ErrorOr<LivroResponse>> RemoverAutoresAsync(RemoverAutoresRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Verificar quais autores estão associados ao livro
+        var autoresExistentes = await livroRepository.BuscarAutoresCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas os autores que estão associados
+        var autoresParaRemover = request.AutoresCodigos
+            .Where(ac => autoresExistentes.Contains(ac))
+            .ToList();
+
+        if (autoresParaRemover.Count == 0)
+            return Error.Validation("Livro.AutoresNaoEncontrados", "Nenhum dos autores informados está associado ao livro");
+
+        // Remover os relacionamentos
+        await livroRepository.RemoverAutoresAsync(request.LivroCodigo, autoresParaRemover);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
+    }
+
+    public async Task<ErrorOr<LivroResponse>> RemoverAssuntosAsync(RemoverAssuntosRequest request)
+    {
+        var livro = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        if (livro == null)
+            return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {request.LivroCodigo} não encontrado");
+
+        // Verificar quais assuntos estão associados ao livro
+        var assuntosExistentes = await livroRepository.BuscarAssuntosCodigosAsync(request.LivroCodigo);
+
+        // Filtrar apenas os assuntos que estão associados
+        var assuntosParaRemover = request.AssuntosCodigos
+            .Where(ac => assuntosExistentes.Contains(ac))
+            .ToList();
+
+        if (assuntosParaRemover.Count == 0)
+            return Error.Validation("Livro.AssuntosNaoEncontrados", "Nenhum dos assuntos informados está associado ao livro");
+
+        // Remover os relacionamentos
+        await livroRepository.RemoverAssuntosAsync(request.LivroCodigo, assuntosParaRemover);
+        await unitOfWork.SaveChangesAsync();
+
+        // Buscar o livro atualizado para retornar
+        var livroAtualizado = await livroRepository.BuscarPorCodigoAsync(request.LivroCodigo);
+        return livroAtualizado!.ToResponse();
     }
 }

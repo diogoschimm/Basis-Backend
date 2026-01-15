@@ -11,4 +11,8 @@ public interface ILivroService
     Task<ErrorOr<LivroResponse>> AdicionarAsync(CriarLivroRequest request);
     Task<ErrorOr<LivroResponse>> AtualizarAsync(AtualizarLivroRequest request);
     Task<ErrorOr<bool>> RemoverAsync(int codigo);
+    Task<ErrorOr<LivroResponse>> AdicionarAutoresAsync(AdicionarAutoresRequest request);
+    Task<ErrorOr<LivroResponse>> AdicionarAssuntosAsync(AdicionarAssuntosRequest request);
+    Task<ErrorOr<LivroResponse>> RemoverAutoresAsync(RemoverAutoresRequest request);
+    Task<ErrorOr<LivroResponse>> RemoverAssuntosAsync(RemoverAssuntosRequest request);
 }

@@ -34,4 +34,50 @@ internal class LivroRepository(LivrosDbContext dbContext)
 
         return (items, totalCount);
     }
+
+    // Métodos para LivroAutor
+    public async Task<List<int>> BuscarAutoresCodigosAsync(int livroCodigo)
+    {
+        return await _dbContext.LivroAutor
+            .Where(la => la.LivroCodigo == livroCodigo)
+            .Select(la => la.AutorCodigo)
+            .ToListAsync();
+    }
+
+    public async Task AdicionarAutoresAsync(List<LivroAutor> livroAutores)
+    {
+        await _dbContext.LivroAutor.AddRangeAsync(livroAutores);
+    }
+
+    public async Task RemoverAutoresAsync(int livroCodigo, List<int> autoresCodigos)
+    {
+        var livroAutores = await _dbContext.LivroAutor
+            .Where(la => la.LivroCodigo == livroCodigo && autoresCodigos.Contains(la.AutorCodigo))
+            .ToListAsync();
+
+        _dbContext.LivroAutor.RemoveRange(livroAutores);
+    }
+
+    // Métodos para LivroAssunto
+    public async Task<List<int>> BuscarAssuntosCodigosAsync(int livroCodigo)
+    {
+        return await _dbContext.LivroAssunto
+            .Where(la => la.LivroCodigo == livroCodigo)
+            .Select(la => la.AssuntoCodigo)
+            .ToListAsync();
+    }
+
+    public async Task AdicionarAssuntosAsync(List<LivroAssunto> livroAssuntos)
+    {
+        await _dbContext.LivroAssunto.AddRangeAsync(livroAssuntos);
+    }
+
+    public async Task RemoverAssuntosAsync(int livroCodigo, List<int> assuntosCodigos)
+    {
+        var livroAssuntos = await _dbContext.LivroAssunto
+            .Where(la => la.LivroCodigo == livroCodigo && assuntosCodigos.Contains(la.AssuntoCodigo))
+            .ToListAsync();
+
+        _dbContext.LivroAssunto.RemoveRange(livroAssuntos);
+    }
 }
