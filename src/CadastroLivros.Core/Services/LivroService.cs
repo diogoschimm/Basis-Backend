@@ -21,8 +21,8 @@ public class LivroService(
         if (pageNumber < 1)
             return Error.Validation("Livro.PaginaInvalida", "O número da página deve ser maior que zero");
 
-        if (pageSize < 1 || pageSize > 100)
-            return Error.Validation("Livro.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 100");
+        if (pageSize < 1 || pageSize > 10000)
+            return Error.Validation("Livro.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 10000");
 
         var (items, totalCount) = await livroRepository.BuscarTodosAsync(pageNumber, pageSize);
 
@@ -43,7 +43,46 @@ public class LivroService(
         if (livro == null)
             return Error.NotFound("Livro.NaoEncontrado", $"Livro com código {codigo} não encontrado");
 
-        return livro.ToResponse();
+        var autoresTask = livroRepository.BuscarAutoresCompletosAsync(codigo);
+        var assuntosTask = livroRepository.BuscarAssuntosCompletosAsync(codigo);
+        var formasCompraTask = livroRepository.BuscarFormasCompraCompletasAsync(codigo);
+
+        await Task.WhenAll(autoresTask, assuntosTask, formasCompraTask);
+
+        var autoresData = autoresTask.Result;
+        var assuntosData = assuntosTask.Result;
+        var formasCompraData = formasCompraTask.Result;
+
+        var autores = autoresData.Select(a => new AutorResponse
+        {
+            Codigo = a.AutorCodigo,
+            Nome = a.AutorNome
+        }).ToList();
+
+        var assuntos = assuntosData.Select(a => new AssuntoResponse
+        {
+            Codigo = a.AssuntoCodigo,
+            Descricao = a.AssuntoDescricao
+        }).ToList();
+
+        var formasCompra = formasCompraData.Select(fc => new FormaCompraItemResponse
+        {
+            FormaCompraCodigo = fc.FormaCompraCodigo,
+            ValorCompra = fc.ValorCompra,
+            Descricao = fc.FormaCompraDescricao
+        }).ToList();
+
+        return new LivroResponse
+        {
+            Codigo = livro.Codigo,
+            Titulo = livro.Titulo,
+            Editora = livro.Editora,
+            Edicao = livro.Edicao,
+            AnoPublicacao = livro.AnoPublicacao,
+            Autores = autores.Count > 0 ? autores : null,
+            Assuntos = assuntos.Count > 0 ? assuntos : null,
+            FormasCompra = formasCompra.Count > 0 ? formasCompra : null
+        };
     }
 
     public async Task<ErrorOr<LivroResponse>> AdicionarAsync(CriarLivroRequest request)
@@ -126,19 +165,10 @@ public class LivroService(
         livroExistente.Edicao = request.Edicao;
         livroExistente.AnoPublicacao = request.AnoPublicacao;
 
-        try
-        {
-            await unitOfWork.BeginTransactionAsync();
-            await livroRepository.UpdateAsync(livroExistente);
-            await unitOfWork.CommitTransactionAsync();
+        await livroRepository.UpdateAsync(livroExistente);
+        await unitOfWork.SaveChangesAsync();
 
-            return livroExistente.ToResponse();
-        }
-        catch
-        {
-            await unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+        return livroExistente.ToResponse();
     }
 
     public async Task<ErrorOr<bool>> RemoverAsync(int codigo)

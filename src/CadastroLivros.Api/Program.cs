@@ -22,6 +22,18 @@ try
     builder.Services.AddCoreDependencies();
     builder.Services.AddInfraDependencies(builder.Configuration);
 
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontEnds", policy =>
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
+
     builder.Services.AddOpenTelemetryConfiguration(builder.Configuration);
     builder.Services.AddRateLimitingConfiguration();
     builder.Services.AddHealthCheckConfiguration();
@@ -75,6 +87,7 @@ try
     app.UseHealthCheckConfiguration();
 
     app.UseHttpsRedirection();
+    app.UseCors("AllowFrontEnds");
     app.UseAuthorization();
     app.MapControllers();
 

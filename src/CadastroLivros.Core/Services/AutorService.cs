@@ -16,8 +16,8 @@ public class AutorService(IAutorRepository autorRepository, IUnitOfWork unitOfWo
         if (pageNumber < 1)
             return Error.Validation("Autor.PaginaInvalida", "O número da página deve ser maior que zero");
 
-        if (pageSize < 1 || pageSize > 100)
-            return Error.Validation("Autor.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 100");
+        if (pageSize < 1 || pageSize > 10000)
+            return Error.Validation("Autor.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 10000");
 
         var (items, totalCount) = await autorRepository.BuscarTodosAsync(pageNumber, pageSize);
 

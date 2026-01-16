@@ -16,8 +16,8 @@ public class AssuntoService(IAssuntoRepository assuntoRepository, IUnitOfWork un
         if (pageNumber < 1)
             return Error.Validation("Assunto.PaginaInvalida", "O número da página deve ser maior que zero");
 
-        if (pageSize < 1 || pageSize > 100)
-            return Error.Validation("Assunto.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 100");
+        if (pageSize < 1 || pageSize > 10000)
+            return Error.Validation("Assunto.TamanhoPaginaInvalido", "O tamanho da página deve estar entre 1 e 10000");
 
         var (items, totalCount) = await assuntoRepository.BuscarTodosAsync(pageNumber, pageSize);
 

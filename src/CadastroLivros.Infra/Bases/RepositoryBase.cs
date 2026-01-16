@@ -5,13 +5,25 @@ using System.Data.Common;
 
 namespace CadastroLivros.Infra.Bases;
 
-public abstract class RepositoryBase<TEntity, TContext>: IRepositoryBase<TEntity>
+public abstract class RepositoryBase<TEntity, TContext> : IRepositoryBase<TEntity>
     where TEntity : Entity
     where TContext : DbContext
 {
+    private readonly DbConnection _connection;
+
     protected readonly TContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
-    protected readonly DbConnection _connection;
+
+    protected DbConnection DbConnection
+    {
+        get
+        {
+            if (_connection.State != System.Data.ConnectionState.Open)
+                _connection.Open();
+
+            return _connection;
+        }
+    }
 
     public RepositoryBase(TContext dbContext)
     {

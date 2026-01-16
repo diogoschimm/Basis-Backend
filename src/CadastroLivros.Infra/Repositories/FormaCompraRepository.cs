@@ -20,7 +20,7 @@ internal class FormaCompraRepository(LivrosDbContext dbContext)
         var offset = (pageNumber - 1) * pageSize;
 
         var countQuery = "SELECT COUNT(*) FROM FormaCompra";
-        var totalCount = await _connection.QuerySingleAsync<int>(countQuery);
+        var totalCount = await DbConnection.QuerySingleAsync<int>(countQuery);
 
         var dataQuery = @"
             SELECT Codigo, Descricao 
@@ -29,7 +29,7 @@ internal class FormaCompraRepository(LivrosDbContext dbContext)
             OFFSET @Offset ROWS 
             FETCH NEXT @PageSize ROWS ONLY";
 
-        var items = (await _connection.QueryAsync<FormaCompra>(dataQuery, new { Offset = offset, PageSize = pageSize })).ToList();
+        var items = (await DbConnection.QueryAsync<FormaCompra>(dataQuery, new { Offset = offset, PageSize = pageSize })).ToList();
 
         return (items, totalCount);
     }

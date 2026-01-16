@@ -28,7 +28,7 @@ public class LivroServiceTests
         _livroService = new LivroService(
             _livroRepositoryMock.Object,
             _autorRepositoryMock.Object,
-            _assuntoRepositoryMock.Object,
+            _assuntoRepositoryMock.Object, 
             _unitOfWorkMock.Object);
     }
 

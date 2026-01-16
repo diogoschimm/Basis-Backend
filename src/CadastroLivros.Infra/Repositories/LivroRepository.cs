@@ -1,4 +1,5 @@
 ﻿using CadastroLivros.Core.Contracts.Repositories;
+using CadastroLivros.Core.DataTransferObjects.DataResults;
 using CadastroLivros.Core.Entities;
 using CadastroLivros.Core.Entities.Ternarias;
 using CadastroLivros.Infra.Bases;
@@ -21,7 +22,7 @@ internal class LivroRepository(LivrosDbContext dbContext)
         var offset = (pageNumber - 1) * pageSize;
 
         var countQuery = "SELECT COUNT(*) FROM Livro";
-        var totalCount = await _connection.QuerySingleAsync<int>(countQuery);
+        var totalCount = await DbConnection.QuerySingleAsync<int>(countQuery);
 
         var dataQuery = @"
             SELECT Codigo, Titulo, Editora, Edicao, AnoPublicacao 
@@ -30,7 +31,7 @@ internal class LivroRepository(LivrosDbContext dbContext)
             OFFSET @Offset ROWS 
             FETCH NEXT @PageSize ROWS ONLY";
 
-        var items = (await _connection.QueryAsync<Livro>(dataQuery, new { Offset = offset, PageSize = pageSize })).ToList();
+        var items = (await DbConnection.QueryAsync<Livro>(dataQuery, new { Offset = offset, PageSize = pageSize })).ToList();
 
         return (items, totalCount);
     }
@@ -102,5 +103,48 @@ internal class LivroRepository(LivrosDbContext dbContext)
             .ToListAsync();
 
         _dbContext.LivroFormaCompra.RemoveRange(livroFormasCompra);
+    }
+
+    public async Task<List<LivroAutorDataResult>> BuscarAutoresCompletosAsync(int livroCodigo)
+    {
+        var query = @"
+            SELECT 
+                a.Codigo AS AutorCodigo,
+                a.Nome AS AutorNome
+            FROM LivroAutor la
+            INNER JOIN Autor a ON la.AutorCodigo = a.Codigo
+            WHERE la.LivroCodigo = @LivroCodigo
+            ORDER BY a.Nome";
+
+        return (await DbConnection.QueryAsync<LivroAutorDataResult>(query, new { LivroCodigo = livroCodigo })).ToList();
+    }
+
+    public async Task<List<LivroAssuntoDataResult>> BuscarAssuntosCompletosAsync(int livroCodigo)
+    {
+        var query = @"
+            SELECT 
+                a.Codigo AS AssuntoCodigo,
+                a.Descricao AS AssuntoDescricao
+            FROM LivroAssunto la
+            INNER JOIN Assunto a ON la.AssuntoCodigo = a.Codigo
+            WHERE la.LivroCodigo = @LivroCodigo
+            ORDER BY a.Descricao";
+
+        return (await DbConnection.QueryAsync<LivroAssuntoDataResult>(query, new { LivroCodigo = livroCodigo })).ToList();
+    }
+
+    public async Task<List<LivroFormaCompraDataResult>> BuscarFormasCompraCompletasAsync(int livroCodigo)
+    {
+        var query = @"
+            SELECT 
+                lfc.FormaCompraCodigo,
+                lfc.ValorCompra,
+                fc.Descricao AS FormaCompraDescricao
+            FROM LivroFormaCompra lfc
+            INNER JOIN FormaCompra fc ON lfc.FormaCompraCodigo = fc.Codigo
+            WHERE lfc.LivroCodigo = @LivroCodigo
+            ORDER BY fc.Descricao";
+
+        return (await DbConnection.QueryAsync<LivroFormaCompraDataResult>(query, new { LivroCodigo = livroCodigo })).ToList();
     }
 }
