@@ -72,7 +72,7 @@ public class AssuntoServiceTests
     {
         // Arrange
         var pageNumber = 1;
-        var pageSize = 101;
+        var pageSize = 100001;
 
         // Act
         var resultado = await _assuntoService.GetAsync(pageNumber, pageSize);
