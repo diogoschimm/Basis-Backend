@@ -15,6 +15,7 @@ public class LivroServiceTests
     private readonly Mock<ILivroRepository> _livroRepositoryMock;
     private readonly Mock<IAutorRepository> _autorRepositoryMock;
     private readonly Mock<IAssuntoRepository> _assuntoRepositoryMock;
+    private readonly Mock<IFormaCompraRepository> _formaCompraRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly LivroService _livroService;
 
@@ -23,6 +24,7 @@ public class LivroServiceTests
         _livroRepositoryMock = new Mock<ILivroRepository>();
         _autorRepositoryMock = new Mock<IAutorRepository>();
         _assuntoRepositoryMock = new Mock<IAssuntoRepository>();
+        _formaCompraRepositoryMock = new Mock<IFormaCompraRepository>();
 
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
@@ -30,6 +32,7 @@ public class LivroServiceTests
             _livroRepositoryMock.Object,
             _autorRepositoryMock.Object,
             _assuntoRepositoryMock.Object,
+            _formaCompraRepositoryMock.Object,
             _unitOfWorkMock.Object);
     }
 
@@ -109,15 +112,15 @@ public class LivroServiceTests
 
         _livroRepositoryMock
             .Setup(x => x.BuscarAutoresCompletosAsync(codigo))
-            .ReturnsAsync(new List<LivroAutorDataResult>());
+            .ReturnsAsync([]);
 
         _livroRepositoryMock
             .Setup(x => x.BuscarAssuntosCompletosAsync(codigo))
-            .ReturnsAsync(new List<LivroAssuntoDataResult>());
+            .ReturnsAsync([]);
 
         _livroRepositoryMock
             .Setup(x => x.BuscarFormasCompraCompletasAsync(codigo))
-            .ReturnsAsync(new List<LivroFormaCompraDataResult>());
+            .ReturnsAsync([]);
 
         // Act
         var resultado = await _livroService.GetAsync(codigo);
@@ -163,14 +166,24 @@ public class LivroServiceTests
         var request = AutoFaker.Generate<CriarLivroRequest>();
         request.AutoresCodigos = null;
         request.AssuntosCodigos = null;
+        request.FormasCompra = null;
 
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync((Livro?)null);
+        var livroCriado = new Livro
+        {
+            Codigo = 1,
+            Titulo = request.Titulo,
+            Editora = request.Editora,
+            Edicao = request.Edicao,
+            AnoPublicacao = request.AnoPublicacao
+        };
 
         _livroRepositoryMock
             .Setup(x => x.AddAsync(It.IsAny<Livro>()))
-            .ReturnsAsync((Livro livro) => livro);
+            .ReturnsAsync((Livro livro) =>
+            {
+                livro.Codigo = livroCriado.Codigo;
+                return livro;
+            });
 
         _unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -182,38 +195,13 @@ public class LivroServiceTests
         // Assert
         Assert.True(resultado.IsError == false);
         Assert.NotNull(resultado.Value);
-        Assert.Equal(request.Codigo, resultado.Value.Codigo);
         Assert.Equal(request.Titulo, resultado.Value.Titulo);
         Assert.Equal(request.Editora, resultado.Value.Editora);
 
-        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    [Trait("LivroServiceTests", "AdicionarAsync")]
-    public async Task AdicionarAsync_ComCodigoExistente_DeveRetornarErro()
-    {
-        // Arrange
-        var request = AutoFaker.Generate<CriarLivroRequest>();
-        var livroExistente = AutoFaker.Generate<Livro>();
-        livroExistente.Codigo = request.Codigo;
-
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync(livroExistente);
-
-        // Act
-        var resultado = await _livroService.AdicionarAsync(request);
-
-        // Assert
-        Assert.True(resultado.IsError);
-        Assert.Equal(ErrorType.Conflict, resultado.FirstError.Type);
-        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
-        _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
 
     [Fact]
     [Trait("LivroServiceTests", "AdicionarAsync")]
@@ -223,6 +211,7 @@ public class LivroServiceTests
         var request = AutoFaker.Generate<CriarLivroRequest>();
         request.AutoresCodigos = [1, 2];
         request.AssuntosCodigos = [1, 2, 3];
+        request.FormasCompra = [];
 
         var autor1 = AutoFaker.Generate<Autor>();
         autor1.Codigo = 1;
@@ -235,10 +224,6 @@ public class LivroServiceTests
         assunto2.Codigo = 2;
         var assunto3 = AutoFaker.Generate<Assunto>();
         assunto3.Codigo = 3;
-
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync((Livro?)null);
 
         _autorRepositoryMock
             .Setup(x => x.BuscarPorCodigoAsync(1))
@@ -262,7 +247,11 @@ public class LivroServiceTests
 
         _livroRepositoryMock
             .Setup(x => x.AddAsync(It.IsAny<Livro>()))
-            .ReturnsAsync((Livro livro) => livro);
+            .ReturnsAsync((Livro livro) =>
+            {
+                livro.Codigo = 1;
+                return livro;
+            });
 
         _unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -274,8 +263,7 @@ public class LivroServiceTests
         // Assert
         Assert.True(resultado.IsError == false);
         Assert.NotNull(resultado.Value);
-        Assert.Equal(request.Codigo, resultado.Value.Codigo);
-        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
+        _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Once);
         _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
         _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(2), Times.Once);
         _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
@@ -298,10 +286,6 @@ public class LivroServiceTests
         var autor1 = AutoFaker.Generate<Autor>();
         autor1.Codigo = 1;
 
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync((Livro?)null);
-
         _autorRepositoryMock
             .Setup(x => x.BuscarPorCodigoAsync(1))
             .ReturnsAsync(autor1);
@@ -317,7 +301,6 @@ public class LivroServiceTests
         Assert.True(resultado.IsError);
         Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
         Assert.Contains("999", resultado.FirstError.Description);
-        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
         _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(999), Times.Once);
         _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);
@@ -336,10 +319,6 @@ public class LivroServiceTests
         var assunto1 = AutoFaker.Generate<Assunto>();
         assunto1.Codigo = 1;
 
-        _livroRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync((Livro?)null);
-
         _assuntoRepositoryMock
             .Setup(x => x.BuscarPorCodigoAsync(1))
             .ReturnsAsync(assunto1);
@@ -355,7 +334,6 @@ public class LivroServiceTests
         Assert.True(resultado.IsError);
         Assert.Equal(ErrorType.NotFound, resultado.FirstError.Type);
         Assert.Contains("999", resultado.FirstError.Description);
-        _livroRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(1), Times.Once);
         _assuntoRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(999), Times.Once);
         _livroRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Livro>()), Times.Never);

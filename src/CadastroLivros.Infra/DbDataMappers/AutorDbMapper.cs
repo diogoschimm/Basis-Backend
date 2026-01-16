@@ -14,7 +14,8 @@ public class AutorDbMapper : IEntityTypeConfiguration<Autor>
 
         builder.Property(a => a.Codigo)
             .HasColumnName("Codigo")
-            .IsRequired();
+            .IsRequired()
+            .ValueGeneratedOnAdd();
 
         builder.Property(a => a.Nome)
             .HasColumnName("Nome")

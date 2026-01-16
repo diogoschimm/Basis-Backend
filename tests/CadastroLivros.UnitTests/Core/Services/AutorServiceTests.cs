@@ -135,12 +135,12 @@ public class AutorServiceTests
         var request = AutoFaker.Generate<CriarAutorRequest>();
 
         _autorRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync((Autor?)null);
-
-        _autorRepositoryMock
             .Setup(x => x.AddAsync(It.IsAny<Autor>()))
-            .ReturnsAsync((Autor autor) => autor);
+            .ReturnsAsync((Autor autor) =>
+            {
+                autor.Codigo = 1;
+                return autor;
+            });
 
         _unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -152,36 +152,11 @@ public class AutorServiceTests
         // Assert
         Assert.True(resultado.IsError == false);
         Assert.NotNull(resultado.Value);
-        Assert.Equal(request.Codigo, resultado.Value.Codigo);
         Assert.Equal(request.Nome, resultado.Value.Nome);
-        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
         _autorRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Autor>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    [Trait("AutorServiceTests", "AdicionarAsync")]
-    public async Task AdicionarAsync_ComCodigoExistente_DeveRetornarErro()
-    {
-        // Arrange
-        var request = AutoFaker.Generate<CriarAutorRequest>();
-        var autorExistente = AutoFaker.Generate<Autor>();
-        autorExistente.Codigo = request.Codigo;
-
-        _autorRepositoryMock
-            .Setup(x => x.BuscarPorCodigoAsync(request.Codigo))
-            .ReturnsAsync(autorExistente);
-
-        // Act
-        var resultado = await _autorService.AdicionarAsync(request);
-
-        // Assert
-        Assert.True(resultado.IsError);
-        Assert.Equal(ErrorType.Conflict, resultado.FirstError.Type);
-        _autorRepositoryMock.Verify(x => x.BuscarPorCodigoAsync(request.Codigo), Times.Once);
-        _autorRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Autor>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    }
 
     [Fact]
     [Trait("AutorServiceTests", "AtualizarAsync")]

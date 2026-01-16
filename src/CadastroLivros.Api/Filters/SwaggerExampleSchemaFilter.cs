@@ -15,7 +15,6 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
         {
             schema.Example = new OpenApiObject
             {
-                ["codigo"] = new OpenApiInteger(1),
                 ["titulo"] = new OpenApiString("Código Limpo"),
                 ["editora"] = new OpenApiString("Prentice Hall"),
                 ["edicao"] = new OpenApiInteger(1),
@@ -75,7 +74,6 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
         {
             schema.Example = new OpenApiObject
             {
-                ["codigo"] = new OpenApiInteger(1),
                 ["nome"] = new OpenApiString("Robert C. Martin")
             };
         }
@@ -95,7 +93,6 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
         {
             schema.Example = new OpenApiObject
             {
-                ["codigo"] = new OpenApiInteger(1),
                 ["descricao"] = new OpenApiString("Programação e Desenvolvimento de Software")
             };
         }
@@ -115,7 +112,6 @@ public class SwaggerExampleSchemaFilter : ISchemaFilter
         {
             schema.Example = new OpenApiObject
             {
-                ["codigo"] = new OpenApiInteger(1),
                 ["descricao"] = new OpenApiString("Balcão")
             };
         }

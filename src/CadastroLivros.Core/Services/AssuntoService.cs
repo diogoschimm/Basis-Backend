@@ -43,13 +43,8 @@ public class AssuntoService(IAssuntoRepository assuntoRepository, IUnitOfWork un
 
     public async Task<ErrorOr<AssuntoResponse>> AdicionarAsync(CriarAssuntoRequest request)
     {
-        var assuntoExistente = await assuntoRepository.BuscarPorCodigoAsync(request.Codigo);
-        if (assuntoExistente != null)
-            return Error.Conflict("Assunto.JaExiste", $"Já existe um assunto com o código {request.Codigo}");
-
         var assunto = new Assunto
         {
-            Codigo = request.Codigo,
             Descricao = request.Descricao
         };
 

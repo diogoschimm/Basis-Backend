@@ -43,13 +43,8 @@ public class AutorService(IAutorRepository autorRepository, IUnitOfWork unitOfWo
 
     public async Task<ErrorOr<AutorResponse>> AdicionarAsync(CriarAutorRequest request)
     {
-        var autorExistente = await autorRepository.BuscarPorCodigoAsync(request.Codigo);
-        if (autorExistente != null)
-            return Error.Conflict("Autor.JaExiste", $"Já existe um autor com o código {request.Codigo}");
-
         var autor = new Autor
         {
-            Codigo = request.Codigo,
             Nome = request.Nome
         };
 

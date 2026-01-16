@@ -5,10 +5,6 @@ namespace CadastroLivros.Core.DataTransferObjects.Requests.Livros;
 
 public class CriarLivroRequest
 {
-    [Required(ErrorMessage = "O código do livro é obrigatório.")]
-    [Range(1, int.MaxValue, ErrorMessage = "O código do livro deve ser maior que zero.")]
-    public int Codigo { get; set; }
-
     [Required(ErrorMessage = "O título do livro é obrigatório.")]
     [MaxLength(40, ErrorMessage = "O título do livro deve ter no máximo 40 caracteres.")]
     public required string Titulo { get; set; }

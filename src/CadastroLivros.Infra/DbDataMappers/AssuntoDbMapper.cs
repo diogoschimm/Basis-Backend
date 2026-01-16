@@ -14,7 +14,8 @@ public class AssuntoDbMapper : IEntityTypeConfiguration<Assunto>
 
         builder.Property(a => a.Codigo)
             .HasColumnName("Codigo")
-            .IsRequired();
+            .IsRequired()
+            .ValueGeneratedOnAdd();
 
         builder.Property(a => a.Descricao)
             .HasColumnName("Descricao")

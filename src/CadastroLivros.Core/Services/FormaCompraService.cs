@@ -43,13 +43,8 @@ public class FormaCompraService(IFormaCompraRepository formaCompraRepository, IU
 
     public async Task<ErrorOr<FormaCompraResponse>> AdicionarAsync(CriarFormaCompraRequest request)
     {
-        var formaCompraExistente = await formaCompraRepository.BuscarPorCodigoAsync(request.Codigo);
-        if (formaCompraExistente != null)
-            return Error.Conflict("FormaCompra.JaExiste", $"Já existe uma forma de compra com o código {request.Codigo}");
-
         var formaCompra = new FormaCompra
         {
-            Codigo = request.Codigo,
             Descricao = request.Descricao
         };
 

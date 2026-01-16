@@ -14,6 +14,7 @@ public class LivroService(
     ILivroRepository livroRepository,
     IAutorRepository autorRepository,
     IAssuntoRepository assuntoRepository,
+    IFormaCompraRepository formaCompraRepository,
     IUnitOfWork unitOfWork) : ILivroService
 {
     public async Task<ErrorOr<PagedResult<LivroResponse>>> GetAsync(int pageNumber = 1, int pageSize = 10)
@@ -87,10 +88,6 @@ public class LivroService(
 
     public async Task<ErrorOr<LivroResponse>> AdicionarAsync(CriarLivroRequest request)
     {
-        var livroExistente = await livroRepository.BuscarPorCodigoAsync(request.Codigo);
-        if (livroExistente != null)
-            return Error.Conflict("Livro.JaExiste", $"Já existe um livro com o código {request.Codigo}");
-
         if (request.AutoresCodigos != null && request.AutoresCodigos.Count != 0)
         {
             foreach (var autorCodigo in request.AutoresCodigos)
@@ -111,9 +108,18 @@ public class LivroService(
             }
         }
 
+        if (request.FormasCompra != null && request.FormasCompra.Count != 0)
+        {
+            foreach (var formaCompraItem in request.FormasCompra)
+            {
+                var formaCompra = await formaCompraRepository.BuscarPorCodigoAsync(formaCompraItem.FormaCompraCodigo);
+                if (formaCompra == null)
+                    return Error.NotFound("FormaCompra.NaoEncontrada", $"Forma de compra com código {formaCompraItem.FormaCompraCodigo} não encontrada");
+            }
+        }
+
         var livro = new Livro
         {
-            Codigo = request.Codigo,
             Titulo = request.Titulo,
             Editora = request.Editora,
             Edicao = request.Edicao,

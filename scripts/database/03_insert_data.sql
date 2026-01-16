@@ -7,16 +7,26 @@ GO
 -- =============================================
 -- Inserir Formas de Compra
 -- =============================================
+SET IDENTITY_INSERT FormaCompra ON;
+GO
+
 INSERT INTO FormaCompra (Codigo, Descricao) VALUES (1, 'Balcão');
 INSERT INTO FormaCompra (Codigo, Descricao) VALUES (2, 'Self-Service');
 INSERT INTO FormaCompra (Codigo, Descricao) VALUES (3, 'Internet');
 INSERT INTO FormaCompra (Codigo, Descricao) VALUES (4, 'Evento');
+
+SET IDENTITY_INSERT FormaCompra OFF;
+GO
+
 PRINT 'Formas de Compra inseridas com sucesso!';
 GO
 
 -- =============================================
 -- Inserir Autores
 -- =============================================
+SET IDENTITY_INSERT Autor ON;
+GO
+
 INSERT INTO Autor (Codigo, Nome) VALUES (1, 'Robert C. Martin');
 INSERT INTO Autor (Codigo, Nome) VALUES (2, 'Martin Fowler');
 INSERT INTO Autor (Codigo, Nome) VALUES (3, 'Eric Evans');
@@ -24,24 +34,38 @@ INSERT INTO Autor (Codigo, Nome) VALUES (4, 'Kent Beck');
 INSERT INTO Autor (Codigo, Nome) VALUES (5, 'Erich Gamma');
 INSERT INTO Autor (Codigo, Nome) VALUES (6, 'Andrew Hunt');
 INSERT INTO Autor (Codigo, Nome) VALUES (7, 'David Thomas');
+
+SET IDENTITY_INSERT Autor OFF;
+GO
+
 PRINT 'Autores inseridos com sucesso!';
 GO
 
 -- =============================================
 -- Inserir Assuntos
 -- =============================================
+SET IDENTITY_INSERT Assunto ON;
+GO
+
 INSERT INTO Assunto (Codigo, Descricao) VALUES (1, 'Desenvolvimento de Software');
 INSERT INTO Assunto (Codigo, Descricao) VALUES (2, 'Arquitetura de Software');
 INSERT INTO Assunto (Codigo, Descricao) VALUES (3, 'Design Patterns');
 INSERT INTO Assunto (Codigo, Descricao) VALUES (4, 'Boas Práticas');
 INSERT INTO Assunto (Codigo, Descricao) VALUES (5, 'Metodologias Ágeis');
 INSERT INTO Assunto (Codigo, Descricao) VALUES (6, 'Domain-Driven Design');
+
+SET IDENTITY_INSERT Assunto OFF;
+GO
+
 PRINT 'Assuntos inseridos com sucesso!';
 GO
 
 -- =============================================
 -- Inserir Livros
 -- =============================================
+SET IDENTITY_INSERT Livro ON;
+GO
+
 INSERT INTO Livro (Codigo, Titulo, Editora, Edicao, AnoPublicacao) 
 VALUES (1, 'Código Limpo', 'Alta Books', 1, '2009');
 
@@ -62,6 +86,9 @@ VALUES (6, 'O Programador Pragmático', 'Alta Books', 2, '2020');
 
 INSERT INTO Livro (Codigo, Titulo, Editora, Edicao, AnoPublicacao) 
 VALUES (7, 'TDD - Desenvolvimento Guiado', 'Bookman', 1, '2010');
+
+SET IDENTITY_INSERT Livro OFF;
+GO
 
 PRINT 'Livros inseridos com sucesso!';
 GO
@@ -171,4 +198,3 @@ GO
 
 PRINT 'Todos os dados foram inseridos com sucesso!';
 GO
-

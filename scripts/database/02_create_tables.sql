@@ -10,7 +10,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Autor')
 BEGIN
     CREATE TABLE Autor (
-        Codigo INT NOT NULL,
+        Codigo INT IDENTITY(1,1) NOT NULL,
         Nome VARCHAR(40) NOT NULL,
         CONSTRAINT PK_Autor PRIMARY KEY (Codigo)
     );
@@ -24,7 +24,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Assunto')
 BEGIN
     CREATE TABLE Assunto (
-        Codigo INT NOT NULL,
+        Codigo INT IDENTITY(1,1) NOT NULL,
         Descricao VARCHAR(40) NOT NULL,
         CONSTRAINT PK_Assunto PRIMARY KEY (Codigo)
     );
@@ -38,7 +38,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'FormaCompra')
 BEGIN
     CREATE TABLE FormaCompra (
-        Codigo INT NOT NULL,
+        Codigo INT IDENTITY(1,1) NOT NULL,
         Descricao VARCHAR(40) NOT NULL,
         CONSTRAINT PK_FormaCompra PRIMARY KEY (Codigo)
     );
@@ -52,7 +52,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Livro')
 BEGIN
     CREATE TABLE Livro (
-        Codigo INT NOT NULL,
+        Codigo INT IDENTITY(1,1) NOT NULL,
         Titulo VARCHAR(40) NOT NULL,
         Editora VARCHAR(40) NOT NULL,
         Edicao INT NOT NULL,

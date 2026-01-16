@@ -14,7 +14,8 @@ public class FormaCompraDbMapper : IEntityTypeConfiguration<FormaCompra>
 
         builder.Property(fc => fc.Codigo)
             .HasColumnName("Codigo")
-            .IsRequired();
+            .IsRequired()
+            .ValueGeneratedOnAdd();
 
         builder.Property(fc => fc.Descricao)
             .HasColumnName("Descricao")

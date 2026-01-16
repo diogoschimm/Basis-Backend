@@ -14,7 +14,8 @@ public class LivroDbMapper : IEntityTypeConfiguration<Livro>
 
         builder.Property(l => l.Codigo)
             .HasColumnName("Codigo")
-            .IsRequired();
+            .IsRequired()
+            .ValueGeneratedOnAdd();
 
         builder.Property(l => l.Titulo)
             .HasColumnName("Titulo")
