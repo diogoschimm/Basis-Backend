@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="01/16/2026 14:28:41" ReportInfo.Modified="01/16/2026 15:48:07" ReportInfo.CreatorVersion="2026.1.0.0">
+  <Styles Name="Gray">
+    <Style Name="Title" Font="Arial, 12pt, style=Bold"/>
+    <Style Name="Header" Fill.Color="Gainsboro" Font="Arial, 10pt, style=Bold"/>
+    <Style Name="Group" Font="Arial, 10pt, style=Bold"/>
+    <Style Name="Data" Font="Arial, 10pt"/>
+    <Style Name="Footer" Fill.Color="Gainsboro" Font="Arial, 10pt"/>
+    <Style Name="EvenRows" Fill.Color="WhiteSmoke" Font="Arial, 10pt"/>
+  </Styles>
+  <Dictionary/>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8">
+      <TextObject Name="Text1" Width="718.2" Height="37.8" Dock="Fill" Text="Relatório de Agrupamento de Livros por Autores" HorzAlign="Center" VertAlign="Center" Font="Arial, 12pt, style=Bold" Style="Title"/>
+    </ReportTitleBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="41.8" Width="718.2" Height="37.8" Condition="[rpt_AutoresLivros.CodigoAutor]">
+      <TextObject Name="Text25" Top="18.9" Width="718.2" Height="18.9" Text="[rpt_AutoresLivros.Autor]" Font="Arial, 10pt"/>
+      <TextObject Name="Text5" Width="718.2" Height="18.9" Fill.Color="Gainsboro" Text="Autor" Font="Arial, 10pt, style=Bold" Style="Header"/>
+      <GroupHeaderBand Name="GroupHeader2" Top="83.6" Width="718.2" Height="56.7" Condition="[rpt_AutoresLivros.CodigoLivro]">
+        <TextObject Name="Text27" Left="151.2" Top="18.9" Width="226.8" Height="18.9" Text="[rpt_AutoresLivros.TituloLivro]" Font="Arial, 10pt"/>
+        <TextObject Name="Text28" Left="378" Top="18.9" Width="113.4" Height="18.9" Text="[rpt_AutoresLivros.Editora]" Font="Arial, 10pt"/>
+        <TextObject Name="Text29" Left="491.4" Top="18.9" Width="75.6" Height="18.9" Text="[rpt_AutoresLivros.Edicao]" Font="Arial, 10pt"/>
+        <TextObject Name="Text30" Left="567" Top="18.9" Width="151.2" Height="18.9" Text="[rpt_AutoresLivros.Ano]" Font="Arial, 10pt"/>
+        <TextObject Name="Text39" Left="274.05" Top="37.8" Width="444.15" Height="18.9" Fill.Color="WhiteSmoke" Text="Assuntos do Livro" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text40" Left="75.6" Top="18.9" Width="75.6" Height="18.9" Text="[rpt_AutoresLivros.CodigoLivro]" Font="Arial, 10pt"/>
+        <TextObject Name="Text35" Left="151.2" Width="226.8" Height="18.9" Fill.Color="WhiteSmoke" Text="Título" Font="Arial, 10pt, style=Bold" Style="Header"/>
+        <TextObject Name="Text34" Left="75.6" Width="75.6" Height="18.9" Fill.Color="WhiteSmoke" Text="Código" Font="Arial, 10pt, style=Bold" Style="Header"/>
+        <TextObject Name="Text36" Left="378" Width="113.4" Height="18.9" Fill.Color="WhiteSmoke" Text="Editora" Font="Arial, 10pt, style=Bold" Style="Header"/>
+        <TextObject Name="Text37" Left="491.4" Width="75.6" Height="18.9" Fill.Color="WhiteSmoke" Text="Edição" Font="Arial, 10pt, style=Bold" Style="Header"/>
+        <TextObject Name="Text38" Left="567" Width="151.2" Height="18.9" Fill.Color="WhiteSmoke" Text="Ano" Font="Arial, 10pt, style=Bold" Style="Header"/>
+        <DataBand Name="Data1" Top="144.3" Width="718.2" Height="18.9" Fill.Color="White" Style="Data" EvenStyle="Data" Guides="9.45,9.45,9.45,9.45,9.45,9.45,9.45">
+          <TextObject Name="Text32" Left="274.05" Width="444.15" Height="18.9" Text="[rpt_AutoresLivros.AssuntoLivro]" Font="Arial, 10pt"/>
+        </DataBand>
+      </GroupHeaderBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="167.2" Width="718.2" Height="18.9" Fill.Color="White">
+      <TextObject Name="Text23" Width="718.2" Height="18.9" Dock="Fill" Text="[PageN]" HorzAlign="Right" Font="Arial, 10pt" Style="Footer"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>
