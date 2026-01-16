@@ -1,9 +1,13 @@
 using CadastroLivros.Api.Controllers.Bases;
 using CadastroLivros.Infra.DbContexts;
+using FastReport;
+using FastReport.Data;
+using FastReport.Export.PdfSimple;
+using FastReport.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Composition;
 using System.Data;
-using FastReport.Export.PdfSimple;
 
 namespace CadastroLivros.Api.Controllers;
 
@@ -23,6 +27,7 @@ public class ReportsController(IConfiguration configuration) : ApiControllerBase
     {
         try
         {
+            RegisteredObjects.AddConnection(typeof(MsSqlDataConnection));
             var reportPath = Path.Combine(AppContext.BaseDirectory, "reports", "RelatorioAutoresLivros.frx");
 
             if (!System.IO.File.Exists(reportPath))
@@ -34,25 +39,19 @@ public class ReportsController(IConfiguration configuration) : ApiControllerBase
                 );
             }
 
-            var report = new FastReport.Report();
+            var report = new Report();
             report.Load(reportPath);
 
-            // Obter dados da view usando DataTable
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            var dataTable = new DataTable();
+            var connection = report.Dictionary.Connections
+                  .OfType<MsSqlDataConnection>()
+                  .FirstOrDefault();
 
-            using var connection = new SqlConnection(connectionString);
-            connection.Open();
+            if (connection == null)
+                throw new Exception("Conexão SQL não encontrada no relatório.");
 
-            using var command = new SqlCommand("SELECT * FROM VW_RelatorioPorAutor", connection);
-            using var adapter = new SqlDataAdapter(command);
-            adapter.Fill(dataTable);
-
-            // Registrar o DataTable no relatório 
-            report.RegisterData(dataTable, "rpt_AutoresLivros");
-            report.GetDataSource("rpt_AutoresLivros")!.Enabled = true;
-
-            // Preparar o relatório
+            connection.ConnectionString = configuration.GetConnectionString("DefaultConnection");
+            connection.Enabled = true;
+            report.Dictionary.ReRegisterData();
             report.Prepare();
 
             // Exportar para PDF

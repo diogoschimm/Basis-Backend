@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReportInfo.Created="01/16/2026 14:28:41" ReportInfo.Modified="01/16/2026 15:48:07" ReportInfo.CreatorVersion="2026.1.0.0">
+<Report ScriptLanguage="CSharp" ReportInfo.Created="01/16/2026 14:28:41" ReportInfo.Modified="01/16/2026 16:45:04" ReportInfo.CreatorVersion="2026.1.0.0">
   <Styles Name="Gray">
     <Style Name="Title" Font="Arial, 12pt, style=Bold"/>
     <Style Name="Header" Fill.Color="Gainsboro" Font="Arial, 10pt, style=Bold"/>
@@ -8,7 +8,21 @@
     <Style Name="Footer" Fill.Color="Gainsboro" Font="Arial, 10pt"/>
     <Style Name="EvenRows" Fill.Color="WhiteSmoke" Font="Arial, 10pt"/>
   </Styles>
-  <Dictionary/>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection">
+      <TableDataSource Name="Table" Alias="rpt_AutoresLivros" DataType="System.Int32" Enabled="true" SelectCommand="SELECT * FROM VW_RelatorioPorAutor">
+        <Column Name="CodigoAutor" DataType="System.Int32"/>
+        <Column Name="Autor" DataType="System.String"/>
+        <Column Name="CodigoLivro" DataType="System.Int32"/>
+        <Column Name="TituloLivro" DataType="System.String"/>
+        <Column Name="Editora" DataType="System.String"/>
+        <Column Name="Edicao" DataType="System.Int32"/>
+        <Column Name="Ano" DataType="System.String"/>
+        <Column Name="CodigoAssunto" DataType="System.Int32"/>
+        <Column Name="AssuntoLivro" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+  </Dictionary>
   <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
     <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8">
       <TextObject Name="Text1" Width="718.2" Height="37.8" Dock="Fill" Text="Relatório de Agrupamento de Livros por Autores" HorzAlign="Center" VertAlign="Center" Font="Arial, 12pt, style=Bold" Style="Title"/>
@@ -28,7 +42,7 @@
         <TextObject Name="Text36" Left="378" Width="113.4" Height="18.9" Fill.Color="WhiteSmoke" Text="Editora" Font="Arial, 10pt, style=Bold" Style="Header"/>
         <TextObject Name="Text37" Left="491.4" Width="75.6" Height="18.9" Fill.Color="WhiteSmoke" Text="Edição" Font="Arial, 10pt, style=Bold" Style="Header"/>
         <TextObject Name="Text38" Left="567" Width="151.2" Height="18.9" Fill.Color="WhiteSmoke" Text="Ano" Font="Arial, 10pt, style=Bold" Style="Header"/>
-        <DataBand Name="Data1" Top="144.3" Width="718.2" Height="18.9" Fill.Color="White" Style="Data" EvenStyle="Data" Guides="9.45,9.45,9.45,9.45,9.45,9.45,9.45">
+        <DataBand Name="Data1" Top="144.3" Width="718.2" Height="18.9" Fill.Color="White" Style="Data" EvenStyle="Data" Guides="9.45,9.45,9.45,9.45,9.45,9.45,9.45" DataSource="Table">
           <TextObject Name="Text32" Left="274.05" Width="444.15" Height="18.9" Text="[rpt_AutoresLivros.AssuntoLivro]" Font="Arial, 10pt"/>
         </DataBand>
       </GroupHeaderBand>
